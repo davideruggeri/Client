@@ -13,8 +13,8 @@ import java.util.concurrent.Executors;
 public class Client {
 
     public static void main(String[] args) {
-        //String host = "localHost";
-        String host = "192.168.1.101";
+        String host = "localHost";
+        //String host = "192.168.1.101";
         int port = 1234;
         String clientId = "Client";
 
@@ -49,37 +49,6 @@ public class Client {
             });
 
         } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    protected static void clientToServer(Socket client) {
-        try {
-            PrintWriter out = new PrintWriter(client.getOutputStream(), true);
-            BufferedReader stdin = new BufferedReader(new InputStreamReader(System.in));
-
-            String line;
-
-            while ((line = stdin.readLine()) != null) {
-                out.println(line);
-            }
-
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-    }
-    protected static void serverToClient(Socket client) {
-        try {
-            BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
-
-            String response;
-
-            while ((response = in.readLine()) != null) {
-                System.out.printf("> %s\n", response);
-            }
-
-        }catch (Exception e) {
             e.printStackTrace();
         }
     }

@@ -3,7 +3,6 @@ package it.unibs.pajc;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.Socket;
-import java.util.HashMap;
 
 public class ProtocolProcessor implements Runnable {
     private Socket client;
