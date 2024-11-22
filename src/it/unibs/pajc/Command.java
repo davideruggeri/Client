@@ -15,7 +15,7 @@ public class Command {
     }
 
     public static String getCommand(String key) {
-        return COMMANDS.getOrDefault(key.toLowerCase(), null);
+        return COMMANDS.getOrDefault(key.toUpperCase(), null);
     }
 
     public static boolean isValidCommand(String key) {
