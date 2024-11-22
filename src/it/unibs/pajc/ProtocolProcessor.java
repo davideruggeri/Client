@@ -2,8 +2,8 @@ package it.unibs.pajc;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.HashMap;
 
 public class ProtocolProcessor implements Runnable {
     private Socket client;
@@ -20,6 +20,11 @@ public class ProtocolProcessor implements Runnable {
 
             while ((input = in.readLine()) != null  ) {
                 System.out.printf("Ricevuto dal client [%s]: %s\n", client.getInetAddress(), input);
+
+                String command = Command.getCommand(input);
+                if (command != null) {
+                    System.out.printf("Comando riconosciuto %s.\n", command);
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
