@@ -13,7 +13,8 @@ import java.util.concurrent.Executors;
 public class Client {
 
     public static void main(String[] args) {
-        String host = "localHost";
+        //String host = "localHost";
+        String host = "10.243.22.3";
         //String host = "192.168.1.101";
         int port = 1234;
         String clientId = "Client";
