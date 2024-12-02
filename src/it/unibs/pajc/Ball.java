@@ -3,14 +3,15 @@ package it.unibs.pajc;
 import java.awt.*;
 
 public class Ball extends Rectangle {
-    private static final double G_PAVIMENTO = 0.9859;
+    public static final double G_PAVIMENTO = 0.9859;
     public double xVelocity, yVelocity;
-    private double xPosition, yPosition;
-    private static final double GRAVITY = 0.99;
-    private static final int INITIAL_SPEED = 20;
-    private static final int BALL_SIZE = 20;
-    private static final int PANEL_HEIGHT = 500;
-    private static final int PANEL_WIDTH = 1000;
+    public double xPosition, yPosition;
+    public static final double GRAVITY = 0.99;
+    public static final int INITIAL_SPEED = 20;
+    public static final int BALL_SIZE = 20;
+    public static final int PANEL_HEIGHT = 530;
+    public static final int PANEL_WIDTH = 1000;
+    private int goal;
 
     public Ball(int startX, int startY) {
         super(startX, startY, BALL_SIZE, BALL_SIZE);
@@ -51,8 +52,24 @@ public class Ball extends Rectangle {
         if (y + height >= PANEL_HEIGHT) {
             yVelocity = -yVelocity*G_PAVIMENTO;
             y = PANEL_HEIGHT -height;
-
         }
+
+        if ((xPosition > 0 && xPosition < 68 && y + height > 350) ||
+                (xPosition > 910 && xPosition < PANEL_WIDTH && y + height > 350)) {
+            yVelocity = -yVelocity * G_PAVIMENTO;
+            y = 350 - height;
+        }
+    }
+
+    public int goal(){
+        goal = 0;
+        if (xPosition <= 68 && yPosition >= 350) {
+            goal = 2;
+        } else if (xPosition >= 910 && yPosition >= 350) {
+            goal = 1;
+        }
+
+        return goal;
     }
 
     public void checkCollision(Giocatore giocatore1, Giocatore giocatore2) {

@@ -2,9 +2,11 @@ package it.unibs.pajc;
 
 import java.awt.*;
 
+import static it.unibs.pajc.Ball.PANEL_HEIGHT;
+
 public class Bot extends Giocatore {
     private static final int FOLLOW_DELAY = 3; // Numero di frame tra le azioni
-    private static final int REACTION_RADIUS = 200; // Distanza di reazione della palla
+    private static final int REACTION_RADIUS = 150; // Distanza di reazione della palla
     private int timer = 0; // Contatore per il ritardo
     private Ball ball;
 
@@ -13,36 +15,64 @@ public class Bot extends Giocatore {
         this.ball = ball;
     }
 
+    @Override
     public void update() {
-        // Incrementa il timer
         timer++;
 
-        // Esegui azioni solo ogni FOLLOW_DELAY frame
         if (timer >= FOLLOW_DELAY) {
-            timer = 0; // Resetta il timer
+            timer = 0;
 
-            // Se la palla è nel raggio di reazione, il bot prova a colpirla
-            if (Math.abs(ball.x - this.x) < REACTION_RADIUS) {
-                // Movimento orizzontale verso la palla
-                if (ball.x < this.x) {
-                    moveLeft();
-                } else if (ball.x > this.x + this.width) {
-                    moveRight();
-                }
+            // Calcola il punto di rimbalzo previsto
+            Point bouncePoint = predictBounce(ball);
 
-                // Tentativo di colpire la palla (solo quando il bot è vicino)
-                if (ball.y >= this.y - ball.height && ball.y <= this.y + this.height) {
-                    // Il bot cerca di colpire la palla, salta se necessario
-                    if (!isJumping()) {
-                        jump();
-                    }
-                }
+            // Movimento orizzontale verso il punto previsto di rimbalzo
+            if (bouncePoint.x < this.x) {
+                moveLeft();
+            } else if (bouncePoint.x > this.x + this.width) {
+                moveRight();
+            }
+
+            // Salta se necessario per colpire la palla
+            if (Math.abs(bouncePoint.x - this.x) < REACTION_RADIUS &&
+                    Math.abs(bouncePoint.y - this.y) < 100 &&
+                    !isJumping()) {
+                jump();
             }
         }
 
-        // Chiamata alla logica base del giocatore per aggiornare posizione e stato
+        // Aggiorna la logica base del giocatore
         super.update();
     }
+
+
+    private Point predictBounce(Ball ball) {
+        double predictedX = ball.xPosition;
+        double predictedY = ball.yPosition;
+        double xVel = ball.xVelocity;
+        double yVel = ball.yVelocity;
+
+        while (predictedY + Ball.BALL_SIZE < PANEL_HEIGHT) {
+            // Aggiorna la posizione simulata con la gravità
+            yVel += Ball.GRAVITY;
+            predictedX += xVel;
+            predictedY += yVel;
+
+            // Controllo dei rimbalzi contro i bordi orizzontali
+            if (predictedX <= 0 || predictedX + Ball.BALL_SIZE >= Ball.PANEL_WIDTH) {
+                xVel = -xVel;
+            }
+
+            // Controllo del rimbalzo contro il pavimento
+            if (predictedY + Ball.BALL_SIZE >= PANEL_HEIGHT) {
+                yVel = -yVel * Ball.G_PAVIMENTO;
+                predictedY = PANEL_HEIGHT - Ball.BALL_SIZE; // Correggi posizione
+            }
+        }
+
+        return new Point((int) predictedX, PANEL_HEIGHT - Ball.BALL_SIZE);
+    }
+
+
 
     @Override
     public void draw(Graphics g) {

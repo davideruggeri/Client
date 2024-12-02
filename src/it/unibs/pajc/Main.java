@@ -72,13 +72,13 @@ public class Main  {
 
     public void startLocalGame(ActionEvent e){
 
-
-        frame.getContentPane().removeAll();
-        controller = new GameController(frame);
-
         JOptionPane.showMessageDialog(null, "I tasti disponibili per la partita sono:\n" +
                 "- (<- e ->) per muoversi di lato.\n" +
                 "- (space) per saltare.\n" +
                 "- (z) calcio.", "Mosse disponibili", JOptionPane.PLAIN_MESSAGE);
+
+        frame.getContentPane().removeAll();
+        controller = new GameController(frame);
+
     }
 }

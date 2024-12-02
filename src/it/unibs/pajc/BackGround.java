@@ -22,7 +22,11 @@ public class BackGround extends JPanel {
         if (backgroundImage != null) {
             g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
         }
-        g.drawLine(0,500,getWidth(),500);
+        g.drawLine(0,530, getWidth(),530);
+        g.drawLine(68, 530, 68, 350);
+        g.drawLine(0,350, 68, 350);
+        g.drawLine(910, 530, 910, 350);
+        g.drawLine(910, 350, getWidth(), 350);
         ball.draw(g);
         giocatore1.draw(g);
         giocatore2.draw(g);

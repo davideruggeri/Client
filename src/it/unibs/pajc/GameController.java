@@ -2,6 +2,8 @@ package it.unibs.pajc;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.util.HashSet;
 import java.util.Set;
@@ -11,22 +13,47 @@ public class GameController {
     private static final int PANEL_HEIGHT = 600;
     private static final int FPS = 60;
 
+    private JLabel timer;
     private Ball ball;
     private Giocatore giocatore1, giocatore2;
     private BackGround backGround;
     private static Set<Integer> pressedKeys = new HashSet<>();
+    private int seconds;
+    private Timer t;
+    private int score1 = 0, score2 = 0;
+    private JLabel scoreLabel1, scoreLabel2;
 
     public GameController(JFrame frame) {
-        // Inizializza gli oggetti del gioco
         ball = new Ball(PANEL_WIDTH / 2, PANEL_HEIGHT / 4);
-        giocatore1 = new Giocatore(100, 450, 20, 50);
-        giocatore2 = new Giocatore(800, 450, 20, 50);
+        giocatore1 = new Giocatore(100, 450, 20, 80);
+        giocatore2 = new Bot(800, 450, 20, 80, ball);
 
-        // Inizializza il pannello grafico e imposta nel frame
+
         backGround = new BackGround(ball, giocatore1, giocatore2);
         frame.setContentPane(backGround);
         frame.setPreferredSize(new Dimension(PANEL_WIDTH, PANEL_HEIGHT));
+
         frame.pack();
+        scoreLabel1 = new JLabel("0");
+        scoreLabel1.setHorizontalAlignment(JLabel.CENTER);
+        scoreLabel1.setFont(new Font("Courier New", Font.BOLD, 30));
+        scoreLabel1.setBounds(40, 40, 364, 96);
+        backGround.add(scoreLabel1);
+
+        timer = new JLabel();
+        timer.setHorizontalAlignment(JLabel.CENTER);
+        timer.setFont(new Font("Courier New", Font.BOLD, 40));
+        timer.setBounds(480, 30, 364,96);
+        backGround.add(timer);
+
+
+        scoreLabel2 = new JLabel("0");
+        scoreLabel2.setHorizontalAlignment(JLabel.CENTER);
+        scoreLabel2.setFont(new Font("Courier New", Font.BOLD, 30));
+        scoreLabel2.setBounds(700, 40, 364, 96);
+        backGround.add(scoreLabel2);
+
+
 
         frame.setFocusable(true);
         frame.addKeyListener(new java.awt.event.KeyAdapter() {
@@ -45,11 +72,11 @@ public class GameController {
                 }
             }
         });
+        aggiornaTimer();
         startGame();
     }
 
     private void handleMovement() {
-        // Gestione del movimento del giocatore1 basato sui tasti premuti
         if (pressedKeys.contains(KeyEvent.VK_SPACE) && pressedKeys.contains(KeyEvent.VK_RIGHT)) {
             giocatore1.moveUpRight();
         } else if (pressedKeys.contains(KeyEvent.VK_SPACE) && pressedKeys.contains(KeyEvent.VK_LEFT)) {
@@ -66,26 +93,52 @@ public class GameController {
             giocatore1.jump();
         }
 
-        // Impedisci al giocatore di attraversare l'altro
         giocatore1.impedisciTrapasso(giocatore2);
+    }
+
+    private void aggiornaTimer() {
+        seconds = 90;
+        timer.setText("01:30");
+
+        t = new Timer(1000, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                seconds--;
+                int minutes = seconds / 60;
+                int sec = seconds % 60;
+
+                timer.setText(String.format("%02d:%02d", minutes, sec));
+            }
+        });
+
+        t.start(); // Avvia il timer
     }
 
     public void startGame() {
         Timer timer = new Timer(1000 / FPS, e -> {
-            // Aggiorna lo stato degli oggetti
             ball.move();
             ball.checkBounds();
             giocatore1.update();
             giocatore2.update();
             ball.checkCollision(giocatore1, giocatore2);
 
-            // Richiede il ridisegno del pannello
             backGround.repaint();
+            goal();
         });
         timer.start();
     }
 
-    public void reset() {
-        ball.resetBall(PANEL_WIDTH / 2, PANEL_HEIGHT / 4, 2);
+    private int goal(){
+        int goal = ball.goal();
+        if (goal == 1) {
+            score1++;
+            scoreLabel1.setText("" + score1);
+            ball.resetBall(PANEL_WIDTH / 2, PANEL_HEIGHT / 2, 1);
+        } else if (goal == 2) {
+            score2++;
+            scoreLabel2.setText("" + score2);
+            ball.resetBall(PANEL_WIDTH / 3, PANEL_HEIGHT / 2, 2);
+        }
+        return goal;
     }
 }
