@@ -1,17 +1,23 @@
 package it.unibs.pajc;
 
 import java.awt.*;
+import java.util.Iterator;
+import java.util.LinkedList;
 
 public class Ball extends Rectangle {
     public static final double G_PAVIMENTO = 0.9859;
     public double xVelocity, yVelocity;
     public double xPosition, yPosition;
-    public static final double GRAVITY = 0.99;
+    public static final double GRAVITY = 0.98;
     public static final int INITIAL_SPEED = 20;
-    public static final int BALL_SIZE = 20;
+    public static final int BALL_SIZE = 30;
     public static final int PANEL_HEIGHT = 530;
     public static final int PANEL_WIDTH = 1000;
     private int goal;
+
+    private LinkedList<PointWithTime> trajectory = new LinkedList<>();
+    private static final int TRAJECTORY_LIFETIME = 600;
+    private long lastPointTime;
 
     public Ball(int startX, int startY) {
         super(startX, startY, BALL_SIZE, BALL_SIZE);
@@ -20,6 +26,37 @@ public class Ball extends Rectangle {
 
         xVelocity = 0;
         yVelocity = 0;
+
+        lastPointTime = System.currentTimeMillis();
+    }
+
+    private class PointWithTime {
+        int x, y;
+        long time;
+
+        public PointWithTime(int x, int y, long time) {
+            this.x = x;
+            this.y = y;
+            this.time = time;
+        }
+    }
+
+    public void updateTrajectory() {
+        long currentTime = System.currentTimeMillis();
+        if (currentTime - lastPointTime >= 16) {
+            int centerX = (int) (xPosition + (double) BALL_SIZE / 2);
+            int centerY = (int) (yPosition + (double) BALL_SIZE / 2);
+            trajectory.add(new PointWithTime(centerX, centerY, currentTime));
+            lastPointTime = currentTime;
+        }
+
+        Iterator<PointWithTime> iterator = trajectory.iterator();
+        while (iterator.hasNext()) {
+            PointWithTime p = iterator.next();
+            if (currentTime - p.time > TRAJECTORY_LIFETIME) {
+                iterator.remove();
+            }
+        }
     }
 
     public void move() {
@@ -30,6 +67,8 @@ public class Ball extends Rectangle {
 
         this.x = (int) xPosition;
         this.y = (int) yPosition;
+
+        updateTrajectory();
     }
 
     public void resetBall(int x, int y, int lato) { //lato = 1 dx, lato = 2 sx
@@ -41,8 +80,8 @@ public class Ball extends Rectangle {
         } else if (lato == 2) {
             angle = Math.toRadians(135);
         }
-        xVelocity = Math.cos(angle)*((double) INITIAL_SPEED /2.5);
-        yVelocity = Math.sin(angle)*((double) INITIAL_SPEED /2.5);
+        xVelocity = Math.cos(angle)*((double) INITIAL_SPEED /2.1);
+        yVelocity = Math.sin(angle)*((double) INITIAL_SPEED /2.1);
     }
 
     public void checkBounds() {
@@ -63,9 +102,9 @@ public class Ball extends Rectangle {
 
     public int goal(){
         goal = 0;
-        if (xPosition <= 68 && yPosition >= 350) {
+        if (xPosition < 68 && yPosition > 350) {
             goal = 2;
-        } else if (xPosition >= 910 && yPosition >= 350) {
+        } else if (xPosition > 910 && yPosition > 350) {
             goal = 1;
         }
 
@@ -79,28 +118,36 @@ public class Ball extends Rectangle {
 
     private void collision(Giocatore giocatore) {
         if (this.intersects(giocatore)) {
-            double Velocity = Math.sqrt(Math.pow(yVelocity, 2) + Math.pow(xVelocity, 2));
+
+            double velocity = Math.sqrt(Math.pow(yVelocity, 2) + Math.pow(xVelocity, 2));
             double angleBall = Math.atan2(yVelocity, xVelocity);
 
             if (yVelocity >= 5) {
-                yVelocity = -Velocity * Math.sin(angleBall) + giocatore.getyVelocity();
+                yVelocity = -velocity * Math.sin(angleBall) + giocatore.getyVelocity();
             } else {
-                Math.max(yVelocity = 2 * giocatore.getyVelocity(), 15);
+                yVelocity = Math.max(2 * giocatore.getyVelocity(), 15);
             }
-            if (xVelocity <= 5) {
-                xVelocity = -Velocity * Math.cos(angleBall) + giocatore.getxVelocity();
-            } else {
 
+            if (xVelocity <= 5) {
+                xVelocity = -velocity * Math.cos(angleBall) + giocatore.getxVelocity();
+            } else {
                 if (giocatore.getxVelocity() > 0) {
-                    Math.max(xVelocity = 2 * giocatore.getxVelocity(), 15);
+                    xVelocity = Math.max(2 * giocatore.getxVelocity(), 15);
                 } else if (giocatore.getxVelocity() == 0) {
-                    Math.max(xVelocity = -xVelocity * G_PAVIMENTO, -15);
+                    xVelocity = Math.max(-xVelocity * G_PAVIMENTO, -15);
                 }
             }
         }
+
     }
 
     public void draw(Graphics g) {
+        g.setColor(Color.GREEN);
+        for (PointWithTime p : trajectory) {
+            g.fillOval(p.x -2 , p.y - 2, 4, 4); // Disegna ogni punto come un cerchio piccolo
+        }
+
+        // Disegna la palla
         g.setColor(Color.RED);
         g.fillOval(this.x, this.y, BALL_SIZE, BALL_SIZE);
     }

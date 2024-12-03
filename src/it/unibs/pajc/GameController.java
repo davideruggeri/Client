@@ -23,10 +23,13 @@ public class GameController {
     private int score1 = 0, score2 = 0;
     private JLabel scoreLabel1, scoreLabel2;
 
+    private Thread gameThread;
+
     public GameController(JFrame frame) {
         ball = new Ball(PANEL_WIDTH / 2, PANEL_HEIGHT / 4);
-        giocatore1 = new Giocatore(100, 450, 20, 80);
-        giocatore2 = new Bot(800, 450, 20, 80, ball);
+        giocatore1 = new Giocatore(100, 450, 30, 80);
+        giocatore2 = new Giocatore(800, 450, 30, 80);
+        //giocatore2 = new Bot(800, 450, 20, 80, ball, giocatore1);
 
 
         backGround = new BackGround(ball, giocatore1, giocatore2);
@@ -111,21 +114,32 @@ public class GameController {
             }
         });
 
-        t.start(); // Avvia il timer
+        t.start();
     }
 
     public void startGame() {
-        Timer timer = new Timer(1000 / FPS, e -> {
-            ball.move();
-            ball.checkBounds();
-            giocatore1.update();
-            giocatore2.update();
-            ball.checkCollision(giocatore1, giocatore2);
+        gameThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (true) {
+                    ball.move();
+                    ball.checkBounds();
+                    giocatore1.update();
+                    giocatore2.update();
+                    ball.checkCollision(giocatore1, giocatore2);
 
-            backGround.repaint();
-            goal();
+                    backGround.repaint();
+                    goal();
+
+                    try {
+                        Thread.sleep(1000 / FPS);  // Mantieni la velocità del gioco (FPS)
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
         });
-        timer.start();
+        gameThread.start();  // Avvia il thread
     }
 
     private int goal(){
@@ -137,7 +151,7 @@ public class GameController {
         } else if (goal == 2) {
             score2++;
             scoreLabel2.setText("" + score2);
-            ball.resetBall(PANEL_WIDTH / 3, PANEL_HEIGHT / 2, 2);
+            ball.resetBall(PANEL_WIDTH / 2, PANEL_HEIGHT / 2, 2);
         }
         return goal;
     }

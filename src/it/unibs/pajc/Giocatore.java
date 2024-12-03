@@ -5,9 +5,9 @@ import java.awt.*;
 public class Giocatore extends Rectangle {
     private static final int BASE_HEIGHT = 450;
     private static final int PANEL_WIDTH = 1000;
-    private static final double GRAVITY = 0.98;
-    private static final int JUMP_STRENGTH = -10;
-    private static final int MOVEMENT_SPEED = 10;
+    public static final double GRAVITY = 0.98;
+    public static final int JUMP_STRENGTH = -10;
+    public static final int MOVEMENT_SPEED = 10;
 
     private double xVelocity = 0;
     private double yVelocity = 0;

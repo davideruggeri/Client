@@ -10,7 +10,6 @@ public class Main  {
     private JFrame frame;
     public JLabel description;
 
-
     public static void main(String[] args) {
             EventQueue.invokeLater(new Runnable() {
                 public void run() {
