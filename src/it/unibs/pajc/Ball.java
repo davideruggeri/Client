@@ -1,23 +1,27 @@
 package it.unibs.pajc;
 
+import javax.swing.*;
 import java.awt.*;
 import java.util.Iterator;
 import java.util.LinkedList;
 
 public class Ball extends Rectangle {
     public static final double G_PAVIMENTO = 0.9859;
-    public double xVelocity, yVelocity;
-    public double xPosition, yPosition;
     public static final double GRAVITY = 0.98;
     public static final int INITIAL_SPEED = 20;
     public static final int BALL_SIZE = 30;
     public static final int PANEL_HEIGHT = 530;
     public static final int PANEL_WIDTH = 1000;
     private int goal;
+    public double xVelocity, yVelocity;
+    public double xPosition, yPosition;
 
     private LinkedList<PointWithTime> trajectory = new LinkedList<>();
     private static final int TRAJECTORY_LIFETIME = 600;
     private long lastPointTime;
+
+    private ImageIcon ballImage;
+
 
     public Ball(int startX, int startY) {
         super(startX, startY, BALL_SIZE, BALL_SIZE);
@@ -28,6 +32,12 @@ public class Ball extends Rectangle {
         yVelocity = 0;
 
         lastPointTime = System.currentTimeMillis();
+    }
+
+    public void disegnaPalla () {
+        ImageIcon palla = new ImageIcon(getClass().getResource("/images/palla.png"));
+        Image ridimensionaPalla = palla.getImage().getScaledInstance(BALL_SIZE, BALL_SIZE, Image.SCALE_SMOOTH);
+        ballImage = new ImageIcon(ridimensionaPalla);
     }
 
     private class PointWithTime {
@@ -118,6 +128,7 @@ public class Ball extends Rectangle {
 
     private void collision(Giocatore giocatore) {
         if (this.intersects(giocatore)) {
+            resetPosition(giocatore);
 
             double velocity = Math.sqrt(Math.pow(yVelocity, 2) + Math.pow(xVelocity, 2));
             double angleBall = Math.atan2(yVelocity, xVelocity);
@@ -138,17 +149,42 @@ public class Ball extends Rectangle {
                 }
             }
         }
+    }
 
+    private void resetPosition(Giocatore giocatore) {
+        double dx;
+        double dy;
+        double xNew;
+        double yNew;
+
+        double deltaX = this.getCenterX() - giocatore.getCenterX();
+        double deltaY = this.getCenterY() - giocatore.getCenterY();
+
+        boolean withinHorizontalBounds = Math.abs(deltaX) < giocatore.getWidth() / 2;
+        boolean withinVerticalBounds = Math.abs(deltaY) < giocatore.getHeight() / 2;
+
+        if (withinHorizontalBounds && withinVerticalBounds) {
+            dx = (giocatore.getWidth() / 2) - Math.abs(deltaX);
+            dy = (giocatore.getHeight() / 2) - Math.abs(deltaY);
+
+            xNew = (deltaX > 0) ? this.getCenterX() + dx + BALL_SIZE / 2
+                    : this.getCenterX() - dx - BALL_SIZE / 2;
+
+            yNew = (deltaY > 0) ? this.getCenterY() + dy + BALL_SIZE / 2
+                    : this.getCenterY() - dy - BALL_SIZE / 2;
+
+            this.xPosition = xNew;
+            this.yPosition = yNew;
+        }
     }
 
     public void draw(Graphics g) {
-        g.setColor(Color.GREEN);
+        g.setColor(Color.BLUE);
         for (PointWithTime p : trajectory) {
-            g.fillOval(p.x -2 , p.y - 2, 4, 4); // Disegna ogni punto come un cerchio piccolo
+            g.fillOval(p.x -2 , p.y - 2, 3, 3); // Disegna ogni punto come un cerchio piccolo
         }
 
-        // Disegna la palla
-        g.setColor(Color.RED);
-        g.fillOval(this.x, this.y, BALL_SIZE, BALL_SIZE);
+        disegnaPalla();
+        g.drawImage(ballImage.getImage(), (int) xPosition, (int) yPosition, null);
     }
 }

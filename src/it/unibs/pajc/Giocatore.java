@@ -3,7 +3,7 @@ package it.unibs.pajc;
 import java.awt.*;
 
 public class Giocatore extends Rectangle {
-    private static final int BASE_HEIGHT = 450;
+    private static final int BASE_HEIGHT = 410;
     private static final int PANEL_WIDTH = 1000;
     public static final double GRAVITY = 0.98;
     public static final int JUMP_STRENGTH = -10;
@@ -13,10 +13,11 @@ public class Giocatore extends Rectangle {
     private double yVelocity = 0;
     private boolean isJumping = false;
 
+
+
     public Giocatore(int startX, int startY, int larghezza, int altezza) {
         super(startX, startY, larghezza, altezza);
     }
-
     public void moveLeft() {
         if (x - MOVEMENT_SPEED >= 0) {
             x -= MOVEMENT_SPEED;
@@ -89,6 +90,7 @@ public class Giocatore extends Rectangle {
             }
         }
     }
+
 
     public double getxVelocity() {
         return xVelocity;

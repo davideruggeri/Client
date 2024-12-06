@@ -27,9 +27,9 @@ public class GameController {
 
     public GameController(JFrame frame) {
         ball = new Ball(PANEL_WIDTH / 2, PANEL_HEIGHT / 4);
-        giocatore1 = new Giocatore(100, 450, 30, 80);
-        giocatore2 = new Giocatore(800, 450, 30, 80);
-        //giocatore2 = new Bot(800, 450, 20, 80, ball, giocatore1);
+        giocatore1 = new Giocatore(100, 410, 40, 120);
+        giocatore2 = new Giocatore(800, 410, 40, 120);
+        //giocatore2 = new Bot(800, 410, 40, 120, ball, giocatore1);
 
 
         backGround = new BackGround(ball, giocatore1, giocatore2);

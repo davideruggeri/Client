@@ -72,7 +72,7 @@ public class Bot extends Giocatore {
     }
 
     private boolean willCollide(int xOffset, int yOffset) {
-        Rectangle nextPosition = new Rectangle(this.x + xOffset, this.y + yOffset, this.width, this.height);
+        Rectangle nextPosition = new Rectangle((this.x + xOffset),(this.y + yOffset), this.width, this.height);
         return nextPosition.intersects(altroGiocatore);
     }
 

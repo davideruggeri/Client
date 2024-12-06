@@ -19,9 +19,9 @@ public class BackGround extends JPanel {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        /*if (backgroundImage != null) {
+        if (backgroundImage != null) {
             g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
-        }*/
+        }
         g.drawLine(0,530, getWidth(),530);
         g.drawLine(68, 530, 68, 350);
         g.drawLine(0,350, 68, 350);
