@@ -184,6 +184,10 @@ public class Ball extends Rectangle {
             g.fillOval(p.x -2 , p.y - 2, 3, 3); // Disegna ogni punto come un cerchio piccolo
         }
 
+        g.setColor(Color.RED);
+        g.fillOval((int) xPosition, (int) yPosition, BALL_SIZE, BALL_SIZE);
+
+
         disegnaPalla();
         g.drawImage(ballImage.getImage(), (int) xPosition, (int) yPosition, null);
     }

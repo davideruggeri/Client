@@ -4,7 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 
-public class Main  {
+public class   Main  {
     GameController controller;
 
     private JFrame frame;
