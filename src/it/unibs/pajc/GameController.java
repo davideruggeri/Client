@@ -5,10 +5,10 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.util.HashSet;
-import java.util.Set;
+import java.awt.event.KeyListener;
+import java.util.ArrayList;
 
-public class GameController {
+public class GameController implements KeyListener{
     private static final int PANEL_WIDTH = 1000;
     private static final int PANEL_HEIGHT = 600;
     private static final int FPS = 60;
@@ -17,20 +17,18 @@ public class GameController {
     private Ball ball;
     private Giocatore giocatore1, giocatore2;
     private BackGround backGround;
-    private static Set<Integer> pressedKeys = new HashSet<>();
     private int seconds;
     private Timer t;
     private int score1 = 0, score2 = 0;
     private JLabel scoreLabel1, scoreLabel2;
 
-    private Thread gameThread;
+    private ArrayList<Integer> currentActiveKeys = new ArrayList<>();
 
     public GameController(JFrame frame) {
         ball = new Ball(PANEL_WIDTH / 2, PANEL_HEIGHT / 4);
         giocatore1 = new Giocatore(100, 410, 40, 120);
         giocatore2 = new Giocatore(800, 410, 40, 120);
         //giocatore2 = new Bot(800, 410, 40, 120, ball, giocatore1);
-
 
         backGround = new BackGround(ball, giocatore1, giocatore2);
         frame.setContentPane(backGround);
@@ -57,46 +55,12 @@ public class GameController {
         backGround.add(scoreLabel2);
 
 
-
+        frame.addKeyListener(this);
         frame.setFocusable(true);
-        frame.addKeyListener(new java.awt.event.KeyAdapter() {
-            @Override
-            public void keyPressed(KeyEvent e) {
-                synchronized (pressedKeys) {
-                    pressedKeys.add(e.getKeyCode());
-                    handleMovement(); // Gestisce il movimento basato sui tasti premuti
-                }
-            }
+        frame.requestFocusInWindow();
 
-            @Override
-            public void keyReleased(KeyEvent e) {
-                synchronized (pressedKeys) {
-                    pressedKeys.remove(e.getKeyCode());
-                }
-            }
-        });
         aggiornaTimer();
         startGame();
-    }
-
-    private void handleMovement() {
-        if (pressedKeys.contains(KeyEvent.VK_SPACE) && pressedKeys.contains(KeyEvent.VK_RIGHT)) {
-            giocatore1.moveUpRight();
-        } else if (pressedKeys.contains(KeyEvent.VK_SPACE) && pressedKeys.contains(KeyEvent.VK_LEFT)) {
-            giocatore1.moveUpLeft();
-        }
-
-        if (pressedKeys.contains(KeyEvent.VK_LEFT)) {
-            giocatore1.moveLeft();
-        } else if (pressedKeys.contains(KeyEvent.VK_RIGHT)) {
-            giocatore1.moveRight();
-        }
-
-        if (pressedKeys.contains(KeyEvent.VK_SPACE)) {
-            giocatore1.jump();
-        }
-
-        giocatore1.impedisciTrapasso(giocatore2);
     }
 
     private void aggiornaTimer() {
@@ -118,28 +82,24 @@ public class GameController {
     }
 
     public void startGame() {
-        gameThread = new Thread(new Runnable() {
+        Timer gameTimer = new Timer(10, new ActionListener() {
             @Override
-            public void run() {
-                while (true) {
-                    ball.move();
-                    ball.checkBounds();
-                    giocatore1.update();
-                    giocatore2.update();
-                    ball.checkCollision(giocatore1, giocatore2);
-
-                    backGround.repaint();
-                    goal();
-
-                    try {
-                        Thread.sleep(1000 / FPS);  // Mantieni la velocità del gioco (FPS)
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+            public void actionPerformed(ActionEvent e) {
+                synchronized (currentActiveKeys) {
+                    applyControls();
                 }
+                ball.move();
+                ball.checkBounds();
+                giocatore1.update();
+                giocatore2.update();
+                ball.checkCollision(giocatore1, giocatore2);
+
+                backGround.repaint();
+                goal();
             }
         });
-        gameThread.start();  // Avvia il thread
+
+        gameTimer.start();
     }
 
     private int goal(){
@@ -154,5 +114,37 @@ public class GameController {
             ball.resetBall(PANEL_WIDTH / 2, PANEL_HEIGHT / 2, 2);
         }
         return goal;
+    }
+
+
+    public void applyControls() {
+        if (giocatore1 == null) return;
+
+        for (Integer key : currentActiveKeys) {
+            switch (key) {
+                case KeyEvent.VK_RIGHT: giocatore1.moveRight(); break;
+                case KeyEvent.VK_LEFT: giocatore1.moveLeft(); break;
+                case KeyEvent.VK_SPACE: giocatore1.jump(); break;
+            }
+            System.out.println("Tasti attivi: " + currentActiveKeys);
+
+        }
+    }
+
+    @Override
+    public void keyTyped(KeyEvent e) {
+
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+        if(!currentActiveKeys.contains(e.getKeyCode())) {
+            currentActiveKeys.add(e.getKeyCode());
+        }
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
+        currentActiveKeys.remove((Integer) e.getKeyCode());
     }
 }

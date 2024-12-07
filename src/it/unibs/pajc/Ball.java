@@ -150,7 +150,7 @@ public class Ball extends Rectangle {
             }
         }
     }
-
+// controllare qua il problema della palla
     private void resetPosition(Giocatore giocatore) {
         double dx;
         double dy;

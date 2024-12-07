@@ -7,7 +7,7 @@ public class Giocatore extends Rectangle {
     private static final int PANEL_WIDTH = 1000;
     public static final double GRAVITY = 0.98;
     public static final int JUMP_STRENGTH = -10;
-    public static final int MOVEMENT_SPEED = 10;
+    public static final int MOVEMENT_SPEED = 7;
 
     private double xVelocity = 0;
     private double yVelocity = 0;
