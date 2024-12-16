@@ -5,6 +5,10 @@ import java.awt.*;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+
 public class Ball extends Rectangle {
     public static final double G_PAVIMENTO = 0.9859;
     public static final double GRAVITY = 0.98;
@@ -99,14 +103,17 @@ public class Ball extends Rectangle {
             xVelocity = -xVelocity;
         }
         if (y + height >= PANEL_HEIGHT) {
-            yVelocity = -yVelocity*G_PAVIMENTO;
-            y = PANEL_HEIGHT -height;
+            yVelocity = -yVelocity * G_PAVIMENTO;
+            //y = PANEL_HEIGHT - height;
         }
 
         if ((xPosition > 0 && xPosition < 68 && y + height > 350) ||
                 (xPosition > 910 && xPosition < PANEL_WIDTH && y + height > 350)) {
             yVelocity = -yVelocity * G_PAVIMENTO;
-            y = 350 - height;
+            //y = 350 - height;
+        }
+        if (yVelocity <= 0.5 && yVelocity >= 0) {
+            yVelocity = 0;
         }
     }
 
@@ -126,7 +133,7 @@ public class Ball extends Rectangle {
         collision(giocatore2);
     }
 
-    private void collision(Giocatore giocatore) {
+   /* void collision(Giocatore giocatore) {
         if (this.intersects(giocatore)) {
             resetPosition(giocatore);
 
@@ -149,34 +156,102 @@ public class Ball extends Rectangle {
                 }
             }
         }
-    }
-// controllare qua il problema della palla
-    private void resetPosition(Giocatore giocatore) {
-        double dx;
-        double dy;
-        double xNew;
-        double yNew;
+    }*/
 
-        double deltaX = this.getCenterX() - giocatore.getCenterX();
-        double deltaY = this.getCenterY() - giocatore.getCenterY();
+    public void collision(Giocatore giocatore) {
+        if (this.intersects(giocatore)) {
+            // Determina se la collisione avviene sopra
+            if (this.y + this.height <= giocatore.y + 5) {
+                // Collisione sulla parte superiore
+                this.y = giocatore.y - this.height; // Riposiziona sopra il giocatore
+                yVelocity = -Math.abs(yVelocity); // Inverti velocità verticale
 
-        boolean withinHorizontalBounds = Math.abs(deltaX) < giocatore.getWidth() / 2;
-        boolean withinVerticalBounds = Math.abs(deltaY) < giocatore.getHeight() / 2;
-
-        if (withinHorizontalBounds && withinVerticalBounds) {
-            dx = (giocatore.getWidth() / 2) - Math.abs(deltaX);
-            dy = (giocatore.getHeight() / 2) - Math.abs(deltaY);
-
-            xNew = (deltaX > 0) ? this.getCenterX() + dx + BALL_SIZE / 2
-                    : this.getCenterX() - dx - BALL_SIZE / 2;
-
-            yNew = (deltaY > 0) ? this.getCenterY() + dy + BALL_SIZE / 2
-                    : this.getCenterY() - dy - BALL_SIZE / 2;
-
-            this.xPosition = xNew;
-            this.yPosition = yNew;
+                // Modifica l'angolo in base alla posizione del contatto
+                double giocatoreCentro = giocatore.x + giocatore.width / 2.0;
+                double pallaCentro = this.x + this.width / 2.0;
+                double distanza = pallaCentro - giocatoreCentro;
+                double maxDistanza = giocatore.width / 2.0;
+                xVelocity = INITIAL_SPEED * (distanza / maxDistanza); // Nuova velocità orizzontale
+            }
+            // Collisione sul lato sinistro
+            else if (this.x + this.width <= giocatore.x + 5) {
+                this.x = giocatore.x - this.width; // Riposiziona a sinistra del giocatore
+                xVelocity = -Math.abs(xVelocity); // Inverti velocità orizzontale
+            }
+            // Collisione sul lato destro
+            else if (this.x >= giocatore.x + giocatore.width - 5) {
+                this.x = giocatore.x + giocatore.width; // Riposiziona a destra del giocatore
+                xVelocity = Math.abs(xVelocity); // Inverti velocità orizzontale
+            }
         }
     }
+    // controllare qua il problema della palla
+void resetPosition(Giocatore giocatore) {
+    double dx;
+    double dy;
+    double xNew;
+    double yNew;
+    if (this.getCenterX() > giocatore.getCenterX()) {
+        if (this.getCenterY() > giocatore.getCenterY() ) {
+            if (this.getCenterY() < (giocatore.getCenterY() + (giocatore.getHeight() / 2))
+                    && this.getCenterY()  > giocatore.getCenterY()
+                    && this.getCenterX() > giocatore.getCenterX()
+                    && this.getCenterX() < (giocatore.getCenterX() + giocatore.getWidth() / 2)) {
+                dx = (giocatore.getWidth()/2) - (getCenterX() - giocatore.getCenterX());
+                dy = (giocatore.getHeight()/2) - (getCenterY() - giocatore.getCenterY());
+                xNew = this.getCenterX() + dx + (double) BALL_SIZE / 2;
+                yNew = this.getCenterY() + dy + (double) BALL_SIZE / 2;
+                this.xPosition = xNew;
+                this.yPosition = yNew;
+
+            }
+        }
+        if (this.getCenterY() < giocatore.getCenterY()) {
+            if (this.getCenterY() < (giocatore.getCenterY() + (giocatore.getHeight() / 2))
+                    && this.getCenterY()  > giocatore.getCenterY()
+                    && this.getCenterX() > giocatore.getCenterX()
+                    && this.getCenterX() < (giocatore.getCenterX() + giocatore.getWidth() / 2)) {
+                dx = (giocatore.getWidth()/2) - (getCenterX() - giocatore.getCenterX());
+                dy = (giocatore.getHeight()/2) - (getCenterY() - giocatore.getCenterY());
+                xNew = this.getCenterX() + dx + (double) BALL_SIZE / 2;
+                yNew = this.getCenterY() - (dy + (double) BALL_SIZE / 2);
+                this.xPosition = xNew;
+                this.yPosition = yNew;
+
+            }
+        }
+    }
+    if (this.getCenterX() < giocatore.getCenterX()) {
+        if (this.getCenterY() > giocatore.getCenterY() ) {
+            if (this.getCenterY() < (giocatore.getCenterY() + (giocatore.getHeight() / 2))
+                    && this.getCenterY()  > giocatore.getCenterY()
+                    && this.getCenterX() > giocatore.getCenterX()
+                    && this.getCenterX() < (giocatore.getCenterX() - giocatore.getWidth() / 2)) {
+                dx = (giocatore.getWidth()/2) - (-getCenterX() - giocatore.getCenterX());
+                dy = (giocatore.getHeight()/2) - (getCenterY() - giocatore.getCenterY());
+                xNew = this.getCenterX() - (dx + (double) BALL_SIZE / 2);
+                yNew = this.getCenterY() + dy + (double) BALL_SIZE / 2;
+                this.xPosition = xNew;
+                this.yPosition = yNew;
+
+            }
+        }
+        if (this.getCenterY() < giocatore.getCenterY()) {
+            if (this.getCenterY() < (giocatore.getCenterY() + (giocatore.getHeight() / 2))
+                    && this.getCenterY()  > giocatore.getCenterY()
+                    && this.getCenterX() > giocatore.getCenterX()
+                    && this.getCenterX() < (giocatore.getCenterX() - giocatore.getWidth() / 2)) {
+                dx = (giocatore.getWidth()/2) - (getCenterX() - giocatore.getCenterX());
+                dy = (giocatore.getHeight()/2) - (getCenterY() - giocatore.getCenterY());
+                xNew = this.getCenterX() - (dx + (double) BALL_SIZE / 2);
+                yNew = this.getCenterY() - (dy + (double) BALL_SIZE / 2);
+                this.xPosition = xNew;
+                this.yPosition = yNew;
+
+            }
+        }
+    }
+}
 
     public void draw(Graphics g) {
         g.setColor(Color.BLUE);

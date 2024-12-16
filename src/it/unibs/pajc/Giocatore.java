@@ -6,7 +6,7 @@ public class Giocatore extends Rectangle {
     private static final int BASE_HEIGHT = 410;
     private static final int PANEL_WIDTH = 1000;
     public static final double GRAVITY = 0.98;
-    public static final int JUMP_STRENGTH = -10;
+    public static final int JUMP_STRENGTH = -15;
     public static final int MOVEMENT_SPEED = 7;
 
     private double xVelocity = 0;
@@ -105,5 +105,9 @@ public class Giocatore extends Rectangle {
     public void draw(Graphics g) {
         g.setColor(Color.BLUE);
         g.fillRect(x, y, width, height);
+    }
+    public void setVelocities(double xVelocity, double yVelocity) {
+        this.xVelocity = xVelocity;
+        this.yVelocity = yVelocity;
     }
 }

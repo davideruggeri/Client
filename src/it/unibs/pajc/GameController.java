@@ -11,7 +11,7 @@ import java.util.ArrayList;
 public class GameController implements KeyListener{
     private static final int PANEL_WIDTH = 1000;
     private static final int PANEL_HEIGHT = 600;
-    private static final int FPS = 60;
+    private static final int FPS = 120;
 
     private JLabel timer;
     private Ball ball;
@@ -82,7 +82,7 @@ public class GameController implements KeyListener{
     }
 
     public void startGame() {
-        Timer gameTimer = new Timer(10, new ActionListener() {
+        Timer gameTimer = new Timer(1000 / FPS, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 synchronized (currentActiveKeys) {
@@ -122,12 +122,18 @@ public class GameController implements KeyListener{
 
         for (Integer key : currentActiveKeys) {
             switch (key) {
-                case KeyEvent.VK_RIGHT: giocatore1.moveRight(); break;
-                case KeyEvent.VK_LEFT: giocatore1.moveLeft(); break;
-                case KeyEvent.VK_SPACE: giocatore1.jump(); break;
+                case KeyEvent.VK_RIGHT:
+                    giocatore1.moveRight();
+                    giocatore1.impedisciTrapasso(giocatore2);
+                    break;
+                case KeyEvent.VK_LEFT:
+                    giocatore1.moveLeft();
+                    giocatore1.impedisciTrapasso(giocatore2);
+                    break;
+                case KeyEvent.VK_SPACE:
+                    giocatore1.jump();
+                    break;
             }
-            System.out.println("Tasti attivi: " + currentActiveKeys);
-
         }
     }
 
